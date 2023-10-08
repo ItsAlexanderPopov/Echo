@@ -1,8 +1,10 @@
 # Echo
+## Link
+https://echo-ap.vercel.app
 
 ## Description
-Social web app that you can post/edit/delete your own posts that will be displayed publically and preserved throughout time as a digital time capsule.
-You can engage into historical news and events, view and write your own.
+This is a social web application that allows you to create, edit, and delete your posts, which will be publicly displayed and preserved as a digital time capsule. 
+You can also participate, viewing and contributing your own content such as stories, historical evenets, current news, and more.
 
 ## Main features
 - Login with your Google account through authentication log in proccess.
@@ -10,11 +12,9 @@ You can engage into historical news and events, view and write your own.
 - View posts and you can easily filter by years and also search posts/users/titles thanks to the search bar.
 
 ## Pictures
-<img src="https://github.com/ItsAlexanderPopov/Echo/assets/87665762/a7f8a745-9342-4d00-a010-b50ffcdd77f2" alt="Main Page" height="350"/>
-<img src="https://github.com/ItsAlexanderPopov/Echo/assets/87665762/42414dc6-a3ee-43a9-9a60-a56afcbfb304" alt="CreatePost" height="350"/>
-<img src="https://github.com/ItsAlexanderPopov/Echo/assets/87665762/fa45345f-a45a-438b-8bda-c61ec4d143e0" alt="Profile" height="350"/>
-
-
+<img src="https://github.com/ItsAlexanderPopov/Echo/assets/87665762/a7f8a745-9342-4d00-a010-b50ffcdd77f2" alt="Main Page" height="350" width='450'/>
+<img src="https://github.com/ItsAlexanderPopov/Echo/assets/87665762/42414dc6-a3ee-43a9-9a60-a56afcbfb304" alt="CreatePost" height="350" width='450'/>
+<img src="https://github.com/ItsAlexanderPopov/Echo/assets/87665762/fa45345f-a45a-438b-8bda-c61ec4d143e0" alt="Profile" height="350" width='450'/>
 
 ## Technologies Used
 <div>
@@ -27,11 +27,7 @@ You can engage into historical news and events, view and write your own.
 <img src='https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white' alt='MongoDB'/>
 </div>
 
-## Link
-https://echo-ap.vercel.app
-
 ## License
-
 ![GitHub](https://img.shields.io/github/license/ItsAlexanderPopov/Echo)
 
 See LICENSE file for more information.

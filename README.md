@@ -36,5 +36,5 @@ See LICENSE file for more information.
 To view all current open issues:
 <br/><a href='https://github.com/ItsAlexanderPopov/Echo/issues'><img alt="Static Badge" src="https://img.shields.io/badge/Open%20Issues-148F77?style=for-the-badge"></a>
 
-To add a new issue or idea we'd happy to hear it from you:
+To add a new issue or idea, I would be happy to hear it from you:
 <br/><a href='https://github.com/ItsAlexanderPopov/Echo/issues/new'><img alt="Static Badge" src="https://img.shields.io/badge/Open%20New%20Issues-2874A6?style=for-the-badge"></a>

@@ -23,7 +23,7 @@ const Feed = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const response = await fetch('/api/prompt')
+      const response = await fetch('/api/prompt') // Might be the cause of the problem of loading it
       const data = await response.json()
       setPosts(data)
     }

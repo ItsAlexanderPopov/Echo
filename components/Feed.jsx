@@ -54,7 +54,11 @@ const Feed = () => {
 
     /* Search Input */
     <section className="feed">
-      <form onSubmit={handleSubmit} className="relative w-full flex-center">
+      <form 
+        id="searchForm"
+        onSubmit={handleSubmit} 
+        className="relative w-full flex-center"
+      >
         <input
           type="text"
           placeholder="Search for posts, titles, or by username"

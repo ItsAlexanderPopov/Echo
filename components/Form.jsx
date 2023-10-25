@@ -7,7 +7,8 @@ const Form = ({ type, post, setPost, submitting, handleSubmit}) => {
       <p className="desc text-left max-w-md">
         {type} and share your views with the world, and leave your footprint in a never ending time capsule platform
       </p>
-      <form 
+      <form
+        id="echoForm"
         onSubmit={handleSubmit}
         className="mt-10 w-full max-w-2xl flex flex-col gap-7 glassmorphism"
       >

@@ -25,11 +25,11 @@ const Nav = () => {
       <nav className='flex justify-around mb-2'>
         <Link href="/" className='flex gap-2 flex-center'>
           <Image
-          src="/assets/images/logo.svg"
-          alt="Echo Logo"
-          width={30}
-          height={30}
-          className='object-contain' 
+            src="/assets/images/logo.svg"
+            alt="Echo Logo"
+            width={30}
+            height={30}
+            className='object-contain' 
           />
           <p className='logo_text'>Echo</p>
         </Link>

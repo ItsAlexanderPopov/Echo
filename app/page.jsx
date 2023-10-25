@@ -5,7 +5,7 @@ const Home = () => {
     <section className="w-full mt-24 flex-center flex-col"> 
         <h1 className="head_text text-center">
             Discover & Contribute
-            <br className="max-md:hidden"/>
+            <br/>
             <span className="orange_gradient text-center">In Echo's Digital Time Capsule</span>
         </h1>
             <p className="desc text-center">

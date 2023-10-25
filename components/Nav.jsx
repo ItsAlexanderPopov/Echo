@@ -21,9 +21,9 @@ const Nav = () => {
 },[])
 
   return (
-     <div className='w-full bg-white fixed pt-2 top-0 border-b-2 drop-shadow-sm z-50'>
-      <nav className='flex justify-around mb-2'>
-        <Link href="/" className='flex gap-2 flex-center'>
+     <div className='w-full bg-white fixed top-0 border-b-2 drop-shadow-sm z-50 pt-[8px]'>
+      <nav className='flex h-fit justify-around mb-2 items-center'>
+        <Link href="/" className='flex gap-2'>
           <Image
             src="/assets/images/logo.svg"
             alt="Echo Logo"
@@ -33,8 +33,6 @@ const Nav = () => {
           />
           <p className='logo_text'>Echo</p>
         </Link>
-
-        
 
         {/* Desktop Navigation */}
         <div className='sm:flex hidden'>

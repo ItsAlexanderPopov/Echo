@@ -60,6 +60,7 @@ const Feed = () => {
         className="relative w-full flex-center"
       >
         <input
+          id="text"
           type="text"
           placeholder="Search for posts, titles, or by username"
           value={searchText}

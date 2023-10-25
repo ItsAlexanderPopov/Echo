@@ -18,6 +18,7 @@ const Form = ({ type, post, setPost, submitting, handleSubmit}) => {
           </span>
 
           <textarea
+          id="textarea-title"
           value={post.title}
           onChange={(e) => setPost({...post, title: e.target.value})}
           placeholder="Title..."
@@ -32,6 +33,7 @@ const Form = ({ type, post, setPost, submitting, handleSubmit}) => {
           </span>
 
           <textarea
+          id="textarea-echo"
           autoFocus
           value={post.prompt}
           onChange={(e) => setPost({...post, prompt: e.target.value})}

@@ -65,12 +65,6 @@
   opacity: 0.15;
 }
 
-@media screen and (max-width: 640px) {
-  .main {
-    padding: 0;
-  }
-}
-
 /* Tailwind Styles */
 
 .app {
@@ -122,7 +116,7 @@
 }
 
 .prompt_layout {
-  @apply space-y-6 py-8 sm:columns-2 sm:gap-6 xl:columns-3;
+  @apply grid grid-cols-1 gap-x-96 gap-y-6 lg:grid-cols-2 xl:grid-cols-3 place-items-center;
 }
 
 /* Feed Component */
@@ -154,7 +148,7 @@
 
 /* PromptCard Component */
 .prompt_card {
-  @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter md:w-[360px] w-full h-fit;
+  @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter lg:w-[360px] w-full h-fit;
 }
 
 .flex-center {

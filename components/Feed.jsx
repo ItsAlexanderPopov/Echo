@@ -23,12 +23,27 @@ const Feed = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const response = await fetch('/api/prompt') // Might be the cause of the problem of loading it
-      const data = await response.json()
-      setPosts(data)
-    }
-    fetchPosts()
-  }, [])
+      try {
+        const response = await fetch('/api/prompt');
+        const data = await response.json();
+  
+        const formattedData = data.map(item => {
+          const [month, day, year] = item.date.split('/');
+          const formattedDate = `${day}/${month}/${year}`;
+          return { ...item, formattedDate };
+        });
+  
+        // Sort the data array by the 'formattedDate' property in descending order
+        const sortedData = formattedData.sort((a, b) => new Date(b.formattedDate) - new Date(a.formattedDate));
+  
+        setPosts(sortedData);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+  
+    fetchPosts();
+  }, []);
 
   // filters posts dynamically accordingly to search and by year selected
   const handleDynamicSearch = () => {

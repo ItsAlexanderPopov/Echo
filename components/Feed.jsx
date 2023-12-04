@@ -25,20 +25,26 @@ const Feed = () => {
     const fetchPosts = async () => {
       try {
         const response = await fetch('/api/prompt');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    
         const data = await response.json();
-  
+    
+        // Convert date strings to "DD/MM/YYYY" format
         const formattedData = data.map(item => {
           const [month, day, year] = item.date.split('/');
           const formattedDate = `${day}/${month}/${year}`;
           return { ...item, formattedDate };
         });
-  
+    
         // Sort the data array by the 'formattedDate' property in descending order
         const sortedData = formattedData.sort((a, b) => new Date(b.formattedDate) - new Date(a.formattedDate));
-  
+    
         setPosts(sortedData);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching or processing posts:', error);
       }
     };
   

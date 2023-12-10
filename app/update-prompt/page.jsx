@@ -10,8 +10,12 @@ const UpdatePrompt = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const promptId = searchParams.get("id");
-  const [post, setPost] = useState({ prompt: "", title: "", date: ""});
   const [submitting, setIsSubmitting] = useState(false);
+  const [post, setPost] = useState({ 
+    prompt: "", 
+    title: "",
+    date: ""
+  });
 
   useEffect(() => {
     const getPromptDetails = async () => {

@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { getCurrentDate } from "@utils/getDate"
 const Form = ({ type, post, setPost, submitting, handleSubmit}) => {
   return(
     <section className="w-full m-w-full flex-start flex-col mt-24">

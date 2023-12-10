@@ -25,32 +25,25 @@ const Feed = () => {
     const fetchPosts = async () => {
       try {
         const response = await fetch('/api/prompt');
-        
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-    
         const data = await response.json();
-    
-        // Convert date strings to "DD/MM/YYYY" format
-        const formattedData = data.map(item => {
-          const [month, day, year] = item.date.split('/');
-          const formattedDate = `${day}/${month}/${year}`;
-          return { ...item, formattedDate };
+  
+        const sortedPosts = data.sort((a, b) => {
+          const dateA = new Date(a.date.split('/').reverse().join('/'));
+          const dateB = new Date(b.date.split('/').reverse().join('/'));
+          return dateB - dateA;
         });
-    
-        // Sort the data array by the 'formattedDate' property in descending order
-        const sortedData = formattedData.sort((a, b) => new Date(b.formattedDate) - new Date(a.formattedDate));
-    
-        setPosts(sortedData);
+  
+        setPosts(sortedPosts);
       } catch (error) {
         console.error('Error fetching or processing posts:', error);
       }
     };
-  
     fetchPosts();
   }, []);
-
+  
   // filters posts dynamically accordingly to search and by year selected
   const handleDynamicSearch = () => {
     return posts.filter(item => 

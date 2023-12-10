@@ -37,6 +37,7 @@ const Feed = () => {
         });
   
         setPosts(sortedPosts);
+        console.log(sortedPosts);
       } catch (error) {
         console.error('Error fetching or processing posts:', error);
       }

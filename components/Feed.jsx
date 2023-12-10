@@ -29,7 +29,6 @@ const Feed = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Testing Calls") // checking in production
         const sortedPosts = data.sort((a, b) => {
           const dateA = new Date(a.date.split('/').reverse().join('/'));
           const dateB = new Date(b.date.split('/').reverse().join('/'));
@@ -37,7 +36,6 @@ const Feed = () => {
         });
   
         setPosts(sortedPosts);
-        console.log(sortedPosts);
       } catch (error) {
         console.error('Error fetching or processing posts:', error);
       }

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import PromptCard from "./PromptCard"
 
 // Renders all posts after filters
@@ -19,7 +19,13 @@ const PromptCardList = ({data}) => {
 const Feed = () => {
   const [searchText, setSearchText] = useState("")
   const [posts, setPosts] = useState([])
-  const [year, setYear] = useState('2')
+  const [selectedYear, setSelectedYear] = useState('');
+
+  // Helper function to safely parse date and get year
+  const getYearFromDate = (dateString) => {
+    const date = new Date(dateString);
+    return isNaN(date.getFullYear()) ? new Date().getFullYear() : date.getFullYear();
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -43,30 +49,38 @@ const Feed = () => {
     fetchPosts();
   }, []);
 
+  // Generate available years from posts
+  const availableYears = useMemo(() => {
+    const years = new Set(posts.map(post => getYearFromDate(post.date)));
+    return Array.from(years).sort((a, b) => b - a);
+  }, [posts]);
+
   // filters posts dynamically accordingly to search and by year selected
-  const handleDynamicSearch = () => {
-    return posts.filter(item => 
-        item.date.includes(year) && (
-          item.prompt.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.title.toLowerCase().includes(searchText.toLowerCase()) || 
-          item.creator.email.toLowerCase().includes(searchText.toLocaleLowerCase()) ||
-          item.creator.username.toLowerCase().includes(searchText.toLocaleLowerCase()
-      ))
-    )
-  }
+  const filteredPosts = useMemo(() => {
+    return posts.filter(post => {
+      const postYear = getYearFromDate(post.date);
+      const matchesYear = selectedYear === '' || postYear.toString() === selectedYear;
+      const matchesSearch = 
+        post.prompt.toLowerCase().includes(searchText.toLowerCase()) ||
+        post.title.toLowerCase().includes(searchText.toLowerCase()) || 
+        post.creator.email.toLowerCase().includes(searchText.toLowerCase()) ||
+        post.creator.username.toLowerCase().includes(searchText.toLowerCase());
+      
+      return matchesYear && matchesSearch;
+    });
+  }, [posts, selectedYear, searchText]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
   }
   
-  const handleSearchText = (e) => {
+  const handleSearchChange = (e) => {
     setSearchText(e.target.value)
   }
 
   return (
-
-    /* Search Input */
     <section className="feed">
+      {/* Search Input */}
       <form 
         id="searchForm"
         onSubmit={handleSubmit} 
@@ -77,7 +91,7 @@ const Feed = () => {
           type="text"
           placeholder="Search for posts, titles, or by username"
           value={searchText}
-          onChange={handleSearchText}
+          onChange={handleSearchChange}
           required
           className="search_input peer"
         />
@@ -85,25 +99,21 @@ const Feed = () => {
 
       {/* filter by year */}
       <div className="flex gap-4 m-4">
-        <button
-          type="button"
-          className={`outline_btn hover:bg-orange-500 ${year === '2022' ? "bg-orange-500" : ''}`}
-          onClick={() => {  year === '2022' ? setYear('2') : setYear('2022')}}
-        >
-          2022
-        </button>
-        <button
-          type="button"
-          className={`outline_btn hover:bg-orange-500 ${year === '2023' ? "bg-orange-500" : ''}`}
-          onClick={() => { year === '2023' ? setYear('2') : setYear('2023')}}
-        >
-          2023
-        </button>
+        {availableYears.map(year => (
+          <button
+            key={year}
+            type="button"
+            className={`outline_btn hover:bg-orange-500 ${selectedYear === year.toString() ? "bg-orange-500" : ''}`}
+            onClick={() => setSelectedYear(selectedYear === year.toString() ? '' : year.toString())}
+          >
+            {year}
+          </button>
+        ))}
       </div>
 
       {/* showcase all posts */}
       <PromptCardList
-        data={handleDynamicSearch()}
+        data={filteredPosts}
       />
     </section>
   )

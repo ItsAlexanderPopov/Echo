@@ -2,139 +2,112 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
-import { signIn, signOut, useSession, getProviders} from 'next-auth/react'
+import { useState } from 'react'
+import { signIn, signOut, useSession } from 'next-auth/react'
 
 const Nav = () => {
-
- const {data: session} = useSession()
-
- const [providers, setProviders] = useState(null)
- const [toggleDropdown, setToggleDropdown] = useState(false)
-
- useEffect(() => {
-  const setUpProviders = async () => {
-    const response = await getProviders()
-    setProviders(response)
-  }
-  setUpProviders();
-},[])
+  const { data: session, status } = useSession()
+  const [toggleDropdown, setToggleDropdown] = useState(false)
 
   return (
-     <div className='w-full bg-white fixed top-0 border-b-2 drop-shadow-sm z-50 pt-[8px]'>
-      <nav className='flex h-fit justify-around mb-2 items-center'>
-        <Link href="/" className='flex gap-2'>
+    <nav className='w-full bg-white fixed top-0 border-b-2 drop-shadow-sm z-50 pt-2'>
+      <div className='flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16'>
+        <Link href="/" className='flex items-center gap-2'>
           <Image
             src="/assets/images/logo.svg"
             alt="Echo Logo"
             width={30}
             height={30}
-            className='object-contain' 
+            className='object-contain'
           />
-          <p className='logo_text'>Echo</p>
+          <p className='font-bold text-xl'>Echo</p>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className='sm:flex hidden'>
-          {session?.user ? (
-            <div className='flex gap-3 md:gap-5'>
+        <div className='hidden sm:flex items-center gap-4'>
+          {status === 'authenticated' ? (
+            <>
               <Link href="/create-prompt" className="black_btn">
                 Create Post
               </Link>
               <button 
-              type='button' 
-              onClick={signOut}
-              className='outline_btn'
+                onClick={() => signOut()}
+                className='outline_btn'
               >
                 Sign Out
               </button>
-              <Link href="/profile">
+              <Link href="/profile" className="flex items-center">
                 <Image 
-                src={session?.user.image}
-                width={50}
-                height={50}
-                className='rounded-full'
-                alt="profile"
+                  src={session.user.image}
+                  width={40}
+                  height={40}
+                  className='rounded-full'
+                  alt="profile"
                 />
               </Link>
-            </div>
-          ) : (
-            <>
-              {providers &&
-              Object.values(providers).map((provider) => (
-              <button
-              type="button"
-              key={provider.name}
-              onClick={() => signIn(provider.id)}
-              className='black_btn'
-              >
-                Sign In
-              </button>
-              ))}
             </>
+          ) : (
+            <button
+              onClick={() => signIn('google')}
+              className='black_btn'
+            >
+              Sign In
+            </button>
           )}
         </div>
 
         {/* Mobile Navigation */}
-        <div className="sm:hidden flex relative">
-          {session?.user ? (
-            <div className='flex'>
+        <div className="sm:hidden relative">
+          {status === 'authenticated' ? (
+            <div>
               <Image 
-                src={session?.user.image}
-                width={50}
-                height={50}
-                className='rounded-full'
+                src={session.user.image}
+                width={40}
+                height={40}
+                className='rounded-full cursor-pointer'
                 alt="profile"
-                onClick={() => setToggleDropdown((prev)=> !prev)}
+                onClick={() => setToggleDropdown((prev) => !prev)}
               />
 
               {toggleDropdown && (
-                <div className='dropdown'>
+                <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1'>
                   <Link
-                  href="/profile"
-                  className='dropdown_link'
-                  onClick={() => setToggleDropdown(false)}
+                    href="/profile"
+                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                    onClick={() => setToggleDropdown(false)}
                   >
                     My Profile
                   </Link>
                   <Link
-                  href="/create-prompt"
-                  className='dropdown_link'
-                  onClick={() => setToggleDropdown(false)}
+                    href="/create-prompt"
+                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                    onClick={() => setToggleDropdown(false)}
                   >
                     Create Prompt
                   </Link>
                   <button
-                  type="button"
-                  onClick={() => {
-                    setToggleDropdown(false)
-                    signOut();
-                  }}
-                  className='mt-5 w-full black_btn'>
-                    
+                    onClick={() => {
+                      setToggleDropdown(false)
+                      signOut()
+                    }}
+                    className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                  >
                     Sign Out
                   </button>
                 </div>
               )}
-            </div> 
-  ) : (
-            <>
-              {providers &&
-                Object.values(providers).map((provider) => (
-                <button
-                type="button"
-                key={provider.name}
-                onClick={() => signIn(provider.id)}
-                className='black_btn'
-                >
-                  Sign In
-                </button>
-                ))}
-          </> 
+            </div>
+          ) : (
+            <button
+              onClick={() => signIn('google')}
+              className='px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors'
+            >
+              Sign In
+            </button>
           )}
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   )
 }
 

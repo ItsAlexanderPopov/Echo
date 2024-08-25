@@ -13,15 +13,8 @@ export async function GET(request) {
         const skip = (page - 1) * limit;
         const year = searchParams.get('year');  // Get the year from query parameters
 
-        console.log(`Year parameter received: ${year}, Type: ${typeof year}`);
-
-        // Debug log for page and limit
-        console.log(`Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
-
         // Fetch prompts based on the selected year, if provided
         const query = year ? { date: { $regex: `${year}` } } : {};
-
-        console.log(`Query for fetching prompts: ${JSON.stringify(query)}`);
 
         const prompts = await Prompt.find(query)
             .sort({ _id: -1 })
@@ -29,12 +22,8 @@ export async function GET(request) {
             .limit(limit)
             .populate('creator')
             .lean();
-
-        console.log(`Prompts fetched: ${JSON.stringify(prompts)}`);
         
         const total = await Prompt.countDocuments(query);
-        
-        console.log(`Total prompts count: ${total}`);
 
         const hasMore = skip + prompts.length < total;
 
@@ -52,8 +41,6 @@ export async function GET(request) {
             },
             { $sort: { _id: -1 } }
         ]);
-
-        console.log(`Available years: ${JSON.stringify(availableYears.map(y => y._id))}`);
 
         return new Response(JSON.stringify({ 
             prompts, 

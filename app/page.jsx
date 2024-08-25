@@ -5,7 +5,7 @@ import Feed from "@components/Feed"
 
 const LoadingAnimation = () => (
   <div className="w-full h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-orange-500"></div>
   </div>
 )
 
@@ -28,10 +28,9 @@ const Home = () => {
 
   return (
     <>
-      {isLoading ? (
-        <LoadingAnimation />
-      ) : (
-        <section className="w-full mt-24 flex-center flex-col"> 
+      {isLoading && <LoadingAnimation />}
+      <div style={{ display: isLoading ? 'none' : 'block' }}>
+        <section className="w-full mt-24 flex-center flex-col">
           <h1 className="head_text text-center">
             Discover & Contribute
             <br/>
@@ -42,10 +41,10 @@ const Home = () => {
             told through thoughts, stories, and experiences.
             Browse to rediscover history, or post anything to inspire others.
           </p>
+          <Feed key={refreshKey} setIsLoading={setIsLoading} />
         </section>
-      )}
-      <Feed key={refreshKey} setIsLoading={setIsLoading} />
-      </>
+      </div>
+    </>
   )
 }
 

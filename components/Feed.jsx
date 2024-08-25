@@ -48,7 +48,7 @@ const Feed = ({ setIsLoading }) => {
         return [...prevPosts, ...newPosts];
       });
 
-      setHasMore(data.prompts.length === 9);
+      setHasMore(data.total > page * 9);
       setCurrentPage(page);
       setTotalPosts(data.total);
       setAvailableYears(data.availableYears);
@@ -56,6 +56,7 @@ const Feed = ({ setIsLoading }) => {
         console.error('Failed to fetch posts:', error);
     } finally {
       setIsLoadingMore(false);
+      setIsLoading(false);
     }
   }, []);
 
@@ -143,23 +144,19 @@ const Feed = ({ setIsLoading }) => {
         <p className="text-center mt-4">No posts found matching your criteria.</p>
       )}
 
-        <div className="mt-4 flex justify-center">
+        <div className="mb-4 mt-2 flex justify-center">
         {hasMore && !isLoadingMore ? (
           <button 
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="outline_btn hover:bg-orange-500 h-12"
+            className="outline_btn hover:bg-orange-500 h-14"
           >
             Load More
           </button>
           ) : (
-            <div className="h-12"></div>
+            <div className="h-14"></div>
           )}
         </div>
-
-      <p className="text-center mt-4">
-        Showing {filteredPosts.length} out of {totalPosts} posts
-      </p>
     </section>
   );
 };

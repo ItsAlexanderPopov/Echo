@@ -27,20 +27,18 @@ const Feed = ({ setIsLoading }) => {
   };
 
   const fetchPosts = useCallback(async () => {
+    console.log("Fetching posts...");
     setIsLoading(true);
     try {
-      const response = await fetch('/api/prompt', {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
-      });
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/prompt?t=${timestamp}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
+      console.log("Posts fetched:", data.length);
+      console.log("First few posts:", data.slice(0, 3)); // Log the first 3 posts for debugging
+
       const sortedPosts = data.sort((a, b) => {
         const dateA = new Date(a.date.split('/').reverse().join('/'));
         const dateB = new Date(b.date.split('/').reverse().join('/'));
@@ -48,14 +46,17 @@ const Feed = ({ setIsLoading }) => {
       });
 
       setPosts(sortedPosts);
+      console.log("Posts sorted and set");
     } catch (error) {
       console.error('Error fetching or processing posts:', error);
     } finally {
+      console.log("Setting loading to false");
       setIsLoading(false);
     }
   }, [setIsLoading]);
 
   useEffect(() => {
+    console.log("Feed component mounted or refreshed");
     fetchPosts();
   }, [fetchPosts]);
 

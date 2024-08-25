@@ -1,6 +1,7 @@
 import { connectToDB } from "@utils/database";
 import Prompt from '@models/prompt'
 
+// Get data specifically for the user's data
 export const GET = async (request, { params }) => {
     try {
         await connectToDB()
@@ -10,6 +11,3 @@ export const GET = async (request, { params }) => {
         return new Response("Failed to fetch prompt", { status: 500 })
     }
 } 
-
-// compared to the default route file GET request,
-// this one gives data specifically for the user's data

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { usePathname } from "next/navigation"
 import PromptCard from "./PromptCard"
 
@@ -16,34 +16,53 @@ const PromptCardList = ({ data, handleLikeUpdate }) => (
 )
 
 const Feed = ({ setIsLoading }) => {
-  const [searchText, setSearchText] = useState("")
   const [posts, setPosts] = useState([])
+  const [searchText, setSearchText] = useState("")
   const [selectedYear, setSelectedYear] = useState('')
+  const [hasMore, setHasMore] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPosts, setTotalPosts] = useState(0)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const pathname = usePathname()
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const initialFetchDone = useRef(false)
 
   const getYearFromDate = useCallback((dateString) => {
     const date = new Date(dateString)
     return date.getFullYear() || new Date().getFullYear()
   }, [])
 
-  const fetchPosts = useCallback(async () => {
-    setIsLoading(true)
+  const fetchPosts = useCallback(async (page) => {
+    setIsLoadingMore(true)
     try {
-      const response = await fetch('/api/prompt', { cache: 'no-store' })
+      const response = await fetch(`/api/prompt?page=${page}&limit=3`, { cache: 'no-store' })
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
       const data = await response.json()
-      setPosts(data.sort((a, b) => new Date(b.date) - new Date(a.date)))
+      
+      setPosts(prevPosts => {
+        const newPosts = data.prompts.filter(newPost => 
+          !prevPosts.some(existingPost => existingPost._id === newPost._id)
+        )
+        return [...prevPosts, ...newPosts]
+      })
+      setHasMore(data.prompts.length === 3)
+      setCurrentPage(page)
+      setTotalPosts(data.total)
     } catch (error) {
       console.error('Failed to fetch posts:', error)
     } finally {
-      setIsLoading(false)
+      setIsLoadingMore(false)
     }
-  }, [setIsLoading])
+  }, [])
 
   useEffect(() => {
-    fetchPosts()
-  }, [fetchPosts, pathname, refreshTrigger])
+    if (!initialFetchDone.current) {
+      setIsLoading(true)
+      fetchPosts(1).then(() => {
+        setIsLoading(false)
+        initialFetchDone.current = true
+      })
+    }
+  }, [fetchPosts, setIsLoading, pathname])
 
   const availableYears = useMemo(() => {
     const years = new Set(posts.map(post => getYearFromDate(post.date)))
@@ -62,9 +81,21 @@ const Feed = ({ setIsLoading }) => {
     })
   }, [posts, selectedYear, searchText, getYearFromDate])
 
-  const handleLikeUpdate = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1)
+  const handleLikeUpdate = useCallback((postId) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post._id === postId 
+          ? { ...post, likes: (post.likes || 0) + 1 } 
+          : post
+      )
+    )
   }, [])
+
+  const handleLoadMore = useCallback(() => {
+    if (hasMore && !isLoadingMore) {
+      fetchPosts(currentPage + 1)
+    }
+  }, [fetchPosts, currentPage, hasMore, isLoadingMore])
 
   return (
     <section className="feed">
@@ -95,6 +126,26 @@ const Feed = ({ setIsLoading }) => {
         data={filteredPosts}
         handleLikeUpdate={handleLikeUpdate}
       />
+
+      {filteredPosts.length === 0 && !isLoadingMore && (
+        <p className="text-center mt-4">No posts found matching your criteria.</p>
+      )}
+
+      {hasMore && (
+        <div className="mt-4 flex justify-center">
+          <button 
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="outline_btn hover:bg-blue-500"
+          >
+            {isLoadingMore ? 'Loading...' : 'Load More'}
+          </button>
+        </div>
+      )}
+
+      <p className="text-center mt-4">
+        Showing {filteredPosts.length} out of {totalPosts} posts
+      </p>
     </section>
   )
 }

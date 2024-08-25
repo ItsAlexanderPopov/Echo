@@ -8,28 +8,60 @@ export async function GET(request) {
         await connectToDB();
 
         const { searchParams } = new URL(request.url);
-        const page = Math.max(1, parseInt(searchParams.get('page')) || 1); // Ensure page is at least 1
-        const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit')) || 9)); // Limit between 1 and 100
+        const page = parseInt(searchParams.get('page')) || 1;
+        const limit = parseInt(searchParams.get('limit')) || 9;
         const skip = (page - 1) * limit;
+        const year = searchParams.get('year');  // Get the year from query parameters
 
-        const prompts = await Prompt.find({})
-            .sort({ date: -1, _id: -1 }) // Sort by date and _id to ensure consistent ordering
+        console.log(`Year parameter received: ${year}, Type: ${typeof year}`);
+
+        // Debug log for page and limit
+        console.log(`Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
+
+        // Fetch prompts based on the selected year, if provided
+        const query = year ? { date: { $regex: `${year}` } } : {};
+
+        console.log(`Query for fetching prompts: ${JSON.stringify(query)}`);
+
+        const prompts = await Prompt.find(query)
+            .sort({ _id: -1 })
             .skip(skip)
             .limit(limit)
             .populate('creator')
             .lean();
 
-        const total = await Prompt.countDocuments();
+        console.log(`Prompts fetched: ${JSON.stringify(prompts)}`);
+        
+        const total = await Prompt.countDocuments(query);
+        
+        console.log(`Total prompts count: ${total}`);
+
         const hasMore = skip + prompts.length < total;
 
-        console.log(`Fetched ${prompts.length} prompts. Total prompts: ${total}. Page: ${page}, Limit: ${limit}, Has more: ${hasMore}`);
+        // Fetch distinct years
+        const availableYears = await Prompt.aggregate([
+            {
+                $project: {
+                    year: { $substr: ["$date", 6, 4] } // Extract year from the date string
+                }
+            },
+            {
+                $group: {
+                    _id: "$year"
+                }
+            },
+            { $sort: { _id: -1 } }
+        ]);
+
+        console.log(`Available years: ${JSON.stringify(availableYears.map(y => y._id))}`);
 
         return new Response(JSON.stringify({ 
             prompts, 
             total, 
             page, 
             limit,
-            hasMore
+            hasMore,
+            availableYears: availableYears.map(y => y._id), // Convert to array of years
         }), { 
             status: 200,
             headers: {
@@ -38,7 +70,7 @@ export async function GET(request) {
             }
         });
     } catch (error) {
-        console.error("Error fetching prompts:", error.message, error.stack);
+        console.error("Error fetching prompts:", error);
         return new Response(JSON.stringify({ error: "Failed to fetch prompts", details: error.message }), { 
             status: 500,
             headers: {

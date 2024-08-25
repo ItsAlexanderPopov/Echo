@@ -1,7 +1,6 @@
-'use client'
-import { useState, useEffect, useMemo, useCallback, useRef } from "react"
-import { usePathname } from "next/navigation"
-import PromptCard from "./PromptCard"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
+import PromptCard from "./PromptCard";
 
 const PromptCardList = ({ data, handleLikeUpdate }) => (
   <div className="prompt_layout mt-8">
@@ -13,73 +12,78 @@ const PromptCardList = ({ data, handleLikeUpdate }) => (
       />
     ))}
   </div>
-)
+);
 
 const Feed = ({ setIsLoading }) => {
-  const [posts, setPosts] = useState([])
-  const [searchText, setSearchText] = useState("")
-  const [selectedYear, setSelectedYear] = useState('')
-  const [hasMore, setHasMore] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPosts, setTotalPosts] = useState(0)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const pathname = usePathname()
-  const initialFetchDone = useRef(false)
+  const [posts, setPosts] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [selectedYear, setSelectedYear] = useState('');
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [availableYears, setAvailableYears] = useState([]);
+  const pathname = usePathname();
+  const initialFetchDone = useRef(false);
 
   const getYearFromDate = useCallback((dateString) => {
-    const date = new Date(dateString)
-    return date.getFullYear() || new Date().getFullYear()
-  }, [])
+    const date = new Date(dateString);
+    return date.getFullYear() || new Date().getFullYear();
+  }, []);
 
-  const fetchPosts = useCallback(async (page) => {
-    setIsLoadingMore(true)
+  const fetchPosts = useCallback(async (page, year, reset = false) => {
+    setIsLoadingMore(true);
     try {
-      const response = await fetch(`/api/prompt?page=${page}&limit=3`, { cache: 'no-store' })
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
-      const data = await response.json()
-      
+      const response = await fetch(`/api/prompt?page=${page}&limit=9&year=${year || ''}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+
       setPosts(prevPosts => {
+        if (reset) {
+          return data.prompts;
+        }
         const newPosts = data.prompts.filter(newPost => 
           !prevPosts.some(existingPost => existingPost._id === newPost._id)
-        )
-        return [...prevPosts, ...newPosts]
-      })
-      setHasMore(data.prompts.length === 3)
-      setCurrentPage(page)
-      setTotalPosts(data.total)
+        );
+        return [...prevPosts, ...newPosts];
+      });
+
+      setHasMore(data.prompts.length === 9);
+      setCurrentPage(page);
+      setTotalPosts(data.total);
+      setAvailableYears(data.availableYears);
     } catch (error) {
-      console.error('Failed to fetch posts:', error)
+        console.error('Failed to fetch posts:', error);
     } finally {
-      setIsLoadingMore(false)
+      setIsLoadingMore(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!initialFetchDone.current) {
-      setIsLoading(true)
-      fetchPosts(1).then(() => {
-        setIsLoading(false)
-        initialFetchDone.current = true
-      })
+      setIsLoading(true);
+      fetchPosts(1, selectedYear, true).then(() => {
+        setIsLoading(false);
+        initialFetchDone.current = true;
+      });
     }
-  }, [fetchPosts, setIsLoading, pathname])
-
-  const availableYears = useMemo(() => {
-    const years = new Set(posts.map(post => getYearFromDate(post.date)))
-    return Array.from(years).sort((a, b) => b - a)
-  }, [posts, getYearFromDate])
+  }, [fetchPosts, setIsLoading, pathname, selectedYear]);
 
   const filteredPosts = useMemo(() => {
-    const searchLower = searchText.toLowerCase()
+    if (!posts.length) return [];
+
+    const searchLower = searchText.toLowerCase();
     return posts.filter(post => {
-      const postYear = getYearFromDate(post.date).toString()
-      return (selectedYear === '' || postYear === selectedYear) &&
-        (post.prompt.toLowerCase().includes(searchLower) ||
-         post.title.toLowerCase().includes(searchLower) ||
-         post.creator.email.toLowerCase().includes(searchLower) ||
-         post.creator.username.toLowerCase().includes(searchLower))
-    })
-  }, [posts, selectedYear, searchText, getYearFromDate])
+      const postYear = getYearFromDate(post.date).toString();
+      const matchesSearch = post.prompt.toLowerCase().includes(searchLower) ||
+                            post.title.toLowerCase().includes(searchLower) ||
+                            post.creator.email.toLowerCase().includes(searchLower) ||
+                            post.creator.username.toLowerCase().includes(searchLower);
+      const matchesYear = selectedYear === '' || postYear === selectedYear;
+      
+      return matchesYear && matchesSearch;
+    });
+  }, [posts, selectedYear, searchText, getYearFromDate]);
 
   const handleLikeUpdate = useCallback((postId) => {
     setPosts(prevPosts => 
@@ -88,21 +92,28 @@ const Feed = ({ setIsLoading }) => {
           ? { ...post, likes: (post.likes || 0) + 1 } 
           : post
       )
-    )
-  }, [])
+    );
+  }, []);
 
   const handleLoadMore = useCallback(() => {
     if (hasMore && !isLoadingMore) {
-      fetchPosts(currentPage + 1)
+      fetchPosts(currentPage + 1, selectedYear);
     }
-  }, [fetchPosts, currentPage, hasMore, isLoadingMore])
+  }, [fetchPosts, currentPage, hasMore, isLoadingMore, selectedYear]);
+
+  const handleYearSelection = useCallback((year) => {
+    const newYear = selectedYear === year.toString() ? '' : year.toString();
+    setSelectedYear(newYear);
+    setCurrentPage(1);
+    fetchPosts(1, newYear, true);
+  }, [fetchPosts, selectedYear]);
 
   return (
     <section className="feed">
       <form onSubmit={(e) => e.preventDefault()} className="relative w-full flex-center">
         <input
           type="text"
-          placeholder="Search for posts, titles, or by username"
+          placeholder="Filter by posts, titles, username or email"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           className="search_input peer"
@@ -110,12 +121,13 @@ const Feed = ({ setIsLoading }) => {
       </form>
 
       <div className="flex gap-4 m-4">
-        {availableYears.map(year => (
+        {availableYears.sort((a, b) => b - a).map(year => (
           <button
             key={year}
             type="button"
             className={`outline_btn hover:bg-orange-500 ${selectedYear === year.toString() ? "bg-orange-500" : ''}`}
-            onClick={() => setSelectedYear(prev => prev === year.toString() ? '' : year.toString())}
+            onClick={() => handleYearSelection(year)}
+            disabled={isLoadingMore}
           >
             {year}
           </button>
@@ -131,23 +143,25 @@ const Feed = ({ setIsLoading }) => {
         <p className="text-center mt-4">No posts found matching your criteria.</p>
       )}
 
-      {hasMore && (
         <div className="mt-4 flex justify-center">
+        {hasMore && !isLoadingMore ? (
           <button 
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="outline_btn hover:bg-blue-500"
+            className="outline_btn hover:bg-orange-500 h-12"
           >
-            {isLoadingMore ? 'Loading...' : 'Load More'}
+            Load More
           </button>
+          ) : (
+            <div className="h-12"></div>
+          )}
         </div>
-      )}
 
       <p className="text-center mt-4">
         Showing {filteredPosts.length} out of {totalPosts} posts
       </p>
     </section>
-  )
-}
+  );
+};
 
-export default Feed
+export default Feed;

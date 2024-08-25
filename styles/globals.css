@@ -8,6 +8,12 @@
   Note: The styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them! 
 */
 
+html, body {
+  overflow-y: scroll; /* Makes the scrollbar always visible */
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
 .main {
   width: 100vw;
   min-height: 100vh;

@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { usePathname } from "next/navigation"
 import PromptCard from "./PromptCard"
 
 const PromptCardList = ({data, handleLikeUpdate}) => {
@@ -20,13 +21,14 @@ const Feed = ({ setIsLoading }) => {
   const [searchText, setSearchText] = useState("")
   const [posts, setPosts] = useState([])
   const [selectedYear, setSelectedYear] = useState('');
+  const pathname = usePathname()
 
   const getYearFromDate = (dateString) => {
     const date = new Date(dateString);
     return isNaN(date.getFullYear()) ? new Date().getFullYear() : date.getFullYear();
   };
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = async () => {
     console.log("Fetching posts...");
     setIsLoading(true);
     try {
@@ -37,7 +39,6 @@ const Feed = ({ setIsLoading }) => {
       }
       const data = await response.json();
       console.log("Posts fetched:", data.length);
-      console.log("First few posts:", data.slice(0, 3)); // Log the first 3 posts for debugging
 
       const sortedPosts = data.sort((a, b) => {
         const dateA = new Date(a.date.split('/').reverse().join('/'));
@@ -53,12 +54,12 @@ const Feed = ({ setIsLoading }) => {
       console.log("Setting loading to false");
       setIsLoading(false);
     }
-  }, [setIsLoading]);
+  };
 
   useEffect(() => {
-    console.log("Feed component mounted or refreshed");
+    console.log("Feed component mounted or path changed");
     fetchPosts();
-  }, [fetchPosts]);
+  }, [pathname]); // Re-fetch when pathname changes
 
   // Generate available years from posts
   const availableYears = useMemo(() => {
@@ -89,9 +90,9 @@ const Feed = ({ setIsLoading }) => {
     setSearchText(e.target.value)
   }
 
-  const handleLikeUpdate = useCallback(async (postId) => {
+  const handleLikeUpdate = async (postId) => {
     await fetchPosts();
-  }, [fetchPosts]);
+  };
 
   return (
     <section className="feed">

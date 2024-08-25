@@ -24,11 +24,9 @@ export const GET = async (request) => {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0',
+                'Cache-Control': 'no-store, max-age=0',
             }
-        })
+        });
     } catch (error) {
         console.error("Error fetching prompts:", error);
         return new Response("Failed to fetch all prompts", { status: 500 })

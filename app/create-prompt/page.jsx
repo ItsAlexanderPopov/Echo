@@ -18,9 +18,9 @@ const CreatePrompt = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSubmitting(true)
-        try{
-            const response = await fetch('/api/prompt/new',{
-                method:'POST',
+        try {
+            const response = await fetch('/api/prompt/new', {
+                method: 'POST',
                 body: JSON.stringify({
                     prompt: post.prompt,
                     userId: session?.user.id,
@@ -28,12 +28,14 @@ const CreatePrompt = () => {
                     date: getCurrentDate()
                 })
             })
-            if(response.ok){
+            if (response.ok) {
+                // Dispatch a custom event
+                window.dispatchEvent(new Event('newPromptCreated'));
                 router.push('/')
             }
-        } catch(error){
+        } catch (error) {
             console.log(error)
-        } finally{
+        } finally {
             setSubmitting(false)
         }
     }

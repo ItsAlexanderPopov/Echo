@@ -1,53 +1,56 @@
 'use client'
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import PromptCard from "./PromptCard"
 
-// Renders all posts after filters
-const PromptCardList = ({data}) => {
+const PromptCardList = ({data, handleLikeUpdate}) => {
   return(
     <div className="prompt_layout mt-8">
       {data.map((post) => (
         <PromptCard
           key={post._id}
           post={post}
+          handleLikeUpdate={handleLikeUpdate}
         />
       ))}
     </div>
   )
 }
 
-const Feed = () => {
+const Feed = ({ setIsLoading }) => {
   const [searchText, setSearchText] = useState("")
   const [posts, setPosts] = useState([])
   const [selectedYear, setSelectedYear] = useState('');
 
-  // Helper function to safely parse date and get year
   const getYearFromDate = (dateString) => {
     const date = new Date(dateString);
     return isNaN(date.getFullYear()) ? new Date().getFullYear() : date.getFullYear();
   };
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('/api/prompt');
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        const sortedPosts = data.sort((a, b) => {
-          const dateA = new Date(a.date.split('/').reverse().join('/'));
-          const dateB = new Date(b.date.split('/').reverse().join('/'));
-          return dateB - dateA;
-        });
-  
-        setPosts(sortedPosts);
-      } catch (error) {
-        console.error('Error fetching or processing posts:', error);
+  const fetchPosts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/prompt');
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    };
+      const data = await response.json();
+      const sortedPosts = data.sort((a, b) => {
+        const dateA = new Date(a.date.split('/').reverse().join('/'));
+        const dateB = new Date(b.date.split('/').reverse().join('/'));
+        return dateB - dateA;
+      });
+
+      setPosts(sortedPosts);
+    } catch (error) {
+      console.error('Error fetching or processing posts:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setIsLoading]);
+
+  useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [fetchPosts]);
 
   // Generate available years from posts
   const availableYears = useMemo(() => {
@@ -77,6 +80,10 @@ const Feed = () => {
   const handleSearchChange = (e) => {
     setSearchText(e.target.value)
   }
+
+  const handleLikeUpdate = useCallback(async (postId) => {
+    await fetchPosts();
+  }, [fetchPosts]);
 
   return (
     <section className="feed">
@@ -114,6 +121,7 @@ const Feed = () => {
       {/* showcase all posts */}
       <PromptCardList
         data={filteredPosts}
+        handleLikeUpdate={handleLikeUpdate}
       />
     </section>
   )

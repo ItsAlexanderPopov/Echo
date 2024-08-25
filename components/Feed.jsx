@@ -43,7 +43,7 @@ const Feed = ({ setIsLoading }) => {
     while (retries > 0) {
       try {
         const timestamp = new Date().getTime();
-        const response = await fetch(`/api/prompt?t=${timestamp}`, { cache: 'no-store' });
+        const response = await fetch(`/api/prompt`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -114,7 +114,6 @@ const Feed = ({ setIsLoading }) => {
 
   return (
     <section className="feed">
-      <button onClick={forceRefresh} className="black_btn mb-4">Refresh Posts</button>
       {/* Search Input */}
       <form 
         id="searchForm"

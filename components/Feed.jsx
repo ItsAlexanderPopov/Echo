@@ -29,7 +29,14 @@ const Feed = ({ setIsLoading }) => {
   const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/prompt');
+      const response = await fetch('/api/prompt', {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
